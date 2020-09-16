@@ -154,4 +154,50 @@ func testPaths(t *testing.T, when spec.G, it spec.S) {
 			})
 		})
 	})
+	when("#WindowsDir", func() {
+		it("returns the path directory", func() {
+			//h.SkipIf(t, runtime.GOOS != "windows", "Skipped on non-windows")
+
+			path := WindowsDir(`C:\layers\file.txt`)
+			h.AssertEq(t, path, `C:\layers`)
+		})
+	})
+
+	when("#WindowsBasename", func() {
+		it("returns the path basename", func() {
+			//h.SkipIf(t, runtime.GOOS != "windows", "Skipped on non-windows")
+
+			path := WindowsBasename(`C:\layers\file.txt`)
+			h.AssertEq(t, path, `file.txt`)
+		})
+	})
+	when("#WindowsToSlash", func() {
+		it("returns the path; backward slashes converted to forward with volume stripped ", func() {
+			//h.SkipIf(t, runtime.GOOS != "windows", "Skipped on non-windows")
+
+			path := WindowsToSlash(`C:\layers\file.txt`)
+			h.AssertEq(t, path, `/layers/file.txt`)
+		})
+	})
+	when("#WindowsPathSID", func() {
+		when ("UID and GID are both 0", func() {
+			it("returns the built-in Administrators SID", func() {
+				//h.SkipIf(t, runtime.GOOS != "windows", "Skipped on non-windows")
+
+				sid := WindowsPathSID(0, 0)
+				h.AssertEq(t, sid, "S-1-5-32-544") // BUILTIN\Administrators
+			})
+		})
+
+		when ("UID and GID are both non-zero", func() {
+			it("returns the built-in Users SID", func() {
+				//h.SkipIf(t, runtime.GOOS != "windows", "Skipped on non-windows")
+
+				sid := WindowsPathSID(99, 99)
+				h.AssertEq(t, sid, "S-1-5-32-545") // BUILTIN\Users
+			})
+		})
+	})
+
+
 }
