@@ -15,8 +15,8 @@ func IsURI(ref string) bool {
 	return schemeRegexp.MatchString(ref)
 }
 
-func IsDir(path string) (bool, error) {
-	fileInfo, err := os.Stat(path)
+func IsDir(p string) (bool, error) {
+	fileInfo, err := os.Stat(p)
 	if err != nil {
 		return false, err
 	}
@@ -24,22 +24,22 @@ func IsDir(path string) (bool, error) {
 	return fileInfo.IsDir(), nil
 }
 
-func FilePathToURI(path string) (string, error) {
+func FilePathToURI(p string) (string, error) {
 	var err error
-	if !filepath.IsAbs(path) {
-		path, err = filepath.Abs(path)
+	if !filepath.IsAbs(p) {
+		p, err = filepath.Abs(p)
 		if err != nil {
 			return "", err
 		}
 	}
 
 	if runtime.GOOS == "windows" {
-		if strings.HasPrefix(path, `\\`) {
-			return "file://" + filepath.ToSlash(strings.TrimPrefix(path, `\\`)), nil
+		if strings.HasPrefix(p, `\\`) {
+			return "file://" + filepath.ToSlash(strings.TrimPrefix(p, `\\`)), nil
 		}
-		return "file:///" + filepath.ToSlash(path), nil
+		return "file:///" + filepath.ToSlash(p), nil
 	}
-	return "file://" + path, nil
+	return "file://" + p, nil
 }
 
 // examples:
@@ -87,7 +87,7 @@ func ToAbsolute(uri, relativeTo string) (string, error) {
 	return uri, nil
 }
 
-func FilterReservedNames(path string) string {
+func FilterReservedNames(p string) string {
 	// The following keys are reserved on Windows
 	// https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file?redirectedfrom=MSDN#win32-file-namespaces
 	reservedNameConversions := map[string]string{
@@ -99,14 +99,16 @@ func FilterReservedNames(path string) string {
 		"prn": "p_r_n",
 	}
 	for k, v := range reservedNameConversions {
-		path = strings.Replace(path, k, v, -1)
+		p = strings.Replace(p, k, v, -1)
 	}
 
-	return path
+	return p
 }
 
-func WindowsDirname(path string) string {
-	pathElements := strings.Split(path, `\`)
+//WindowsDir is equivalent to path.Dir or filepath.Dir but always for Windows paths
+//reproduced because Windows implementation is not exported
+func WindowsDir(p string) string {
+	pathElements := strings.Split(p, `\`)
 	if len(pathElements) < 1 {
 		return ""
 	}
@@ -116,8 +118,10 @@ func WindowsDirname(path string) string {
 	return dirName
 }
 
-func WindowsBasename(path string) string {
-	pathElements := strings.Split(path, `\`)
+//WindowsBasename is equivalent to path.Basename or filepath.Basename but always for Windows paths
+//reproduced because Windows implementation is not exported
+func WindowsBasename(p string) string {
+	pathElements := strings.Split(p, `\`)
 	if len(pathElements) < 1 {
 		return ""
 	}
@@ -125,8 +129,10 @@ func WindowsBasename(path string) string {
 	return pathElements[len(pathElements)-1]
 }
 
-func WindowsToPosixPath(path string) string {
-	return strings.ReplaceAll(path, `\`, "/")[2:] // strip volume, convert slashes
+//WindowsToSlash is equivalent to path.Basename or filepath.Basename but always for Windows paths
+//reproduced because Windows implementation is not exported
+func WindowsToSlash(p string) string {
+	return strings.ReplaceAll(p, `\`, "/")[2:] // strip volume, convert slashes
 }
 
 //WindowsPathSID returns the appropriate SID for a given UID and GID
