@@ -317,7 +317,7 @@ func (b assetManagerBuilder) buildPack(compileVersion string) string {
 	cmd := exec.Command("go", "build",
 		"-ldflags", fmt.Sprintf("-X 'github.com/buildpacks/pack/cmd.Version=%s'", compileVersion),
 		"-o", packPath,
-		"./cmd/pack",
+		"github.com/buildpacks/pack/cmd/pack",
 	)
 	if filepath.Base(cwd) == "acceptance" {
 		cmd.Dir = filepath.Dir(cwd)

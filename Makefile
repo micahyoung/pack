@@ -57,7 +57,7 @@ tidy: mod-tidy format
 
 build: out
 	@echo "> Building..."
-	$(GOCMD) build -ldflags "-s -w -X 'github.com/buildpacks/pack.Version=${PACK_VERSION}' -extldflags ${LDFLAGS}" -trimpath -o ./out/$(PACK_BIN) -a ./cmd/pack
+	$(GOCMD) build -ldflags "-s -w -X 'github.com/buildpacks/pack.Version=${PACK_VERSION}' -extldflags ${LDFLAGS}" -trimpath -o ./out/$(PACK_BIN) -a github.com/buildpacks/pack/cmd/pack
 
 package: out
 	tar czf .$/out$/$(ARCHIVE_NAME).tgz -C .$/out$/ $(PACK_BIN)
@@ -91,16 +91,16 @@ unit: GOTESTFLAGS:=$(GOTESTFLAGS) -coverprofile=./out/tests/coverage-unit.txt -c
 endif
 unit: out
 	@echo "> Running unit/integration tests..."
-	$(GOCMD) test $(GOTESTFLAGS) -timeout=$(UNIT_TIMEOUT) ./...
+	$(GOCMD) test $(GOTESTFLAGS) -timeout=$(UNIT_TIMEOUT) github.com/buildpacks/pack/...
 
 acceptance: out
 	@echo "> Running acceptance tests..."
-	$(GOCMD) test $(GOTESTFLAGS) -timeout=$(ACCEPTANCE_TIMEOUT) -tags=acceptance ./acceptance
+	$(GOCMD) test $(GOTESTFLAGS) -timeout=$(ACCEPTANCE_TIMEOUT) -tags=acceptance github.com/buildpacks/pack/acceptance
 
 acceptance-all: export ACCEPTANCE_SUITE_CONFIG:=$(shell $(CAT) .$/acceptance$/testconfig$/all.json)
 acceptance-all:
 	@echo "> Running acceptance tests..."
-	$(GOCMD) test $(GOTESTFLAGS) -timeout=$(ACCEPTANCE_TIMEOUT) -tags=acceptance ./acceptance
+	$(GOCMD) test $(GOTESTFLAGS) -timeout=$(ACCEPTANCE_TIMEOUT) -tags=acceptance github.com/buildpacks/pack/acceptance
 
 clean:
 	@echo "> Cleaning workspace..."
