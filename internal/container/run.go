@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Run(ctx context.Context, docker client.CommonAPIClient, ctrID string, out, errOut io.Writer) error {
+func Run(ctx context.Context, docker client.CommonAPIClient, ctrID string, out, errOut io.Writer, execConfigs ...*types.ExecConfig) error {
 	bodyChan, errChan := docker.ContainerWait(ctx, ctrID, dcontainer.WaitConditionNextExit)
 
 	resp, err := docker.ContainerAttach(ctx, ctrID, types.ContainerAttachOptions{
@@ -27,6 +27,17 @@ func Run(ctx context.Context, docker client.CommonAPIClient, ctrID string, out, 
 
 	if err := docker.ContainerStart(ctx, ctrID, types.ContainerStartOptions{}); err != nil {
 		return errors.Wrap(err, "container start")
+	}
+
+	for _, execConfig := range execConfigs {
+		exec, err := docker.ContainerExecCreate(ctx, ctrID, *execConfig)
+		if err != nil {
+			return errors.Wrap(err, "container exec create")
+		}
+
+		if err := docker.ContainerExecStart(ctx, exec.ID, types.ExecStartCheck{}); err != nil {
+			return errors.Wrap(err, "container exec start")
+		}
 	}
 
 	copyErr := make(chan error)

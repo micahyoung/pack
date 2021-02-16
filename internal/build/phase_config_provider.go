@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types"
 
 	"github.com/buildpacks/pack/internal/style"
 	"github.com/buildpacks/pack/logging"
@@ -13,7 +14,7 @@ import (
 
 const (
 	linuxContainerAdmin   = "root"
-	windowsContainerAdmin = "ContainerAdministrator"
+	windowsContainerAdmin = `NT AUTHORITY\SYSTEM`
 	platformAPIEnvVar     = "CNB_PLATFORM_API"
 )
 
@@ -21,6 +22,7 @@ type PhaseConfigProviderOperation func(*PhaseConfigProvider)
 
 type PhaseConfigProvider struct {
 	ctrConf      *container.Config
+	ctrExecs     []*types.ExecConfig
 	hostConf     *container.HostConfig
 	name         string
 	os           string
@@ -190,6 +192,15 @@ func WithRoot() PhaseConfigProviderOperation {
 	return func(provider *PhaseConfigProvider) {
 		if provider.os == "windows" {
 			provider.ctrConf.User = windowsContainerAdmin
+
+			// exec process as default user than can be impersonated by SYSTEM user
+			// run cmd in the background to prompt for input forever
+			provider.ctrExecs = []*types.ExecConfig{{
+				Cmd:          []string{"cmd.exe", "/c", "set /p wait="},
+				Detach:       true,
+				AttachStdin:  true,
+				User:         "",
+			}}
 		} else {
 			provider.ctrConf.User = linuxContainerAdmin
 		}

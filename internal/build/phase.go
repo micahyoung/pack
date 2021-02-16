@@ -13,17 +13,18 @@ import (
 )
 
 type Phase struct {
-	name         string
-	infoWriter   io.Writer
-	errorWriter  io.Writer
-	docker       client.CommonAPIClient
-	ctrConf      *dcontainer.Config
-	hostConf     *dcontainer.HostConfig
-	ctr          dcontainer.ContainerCreateCreatedBody
-	uid, gid     int
-	appPath      string
-	containerOps []ContainerOperation
-	fileFilter   func(string) bool
+	name           string
+	infoWriter     io.Writer
+	errorWriter    io.Writer
+	docker         client.CommonAPIClient
+	ctrConf        *dcontainer.Config
+	hostConf       *dcontainer.HostConfig
+	ctr            dcontainer.ContainerCreateCreatedBody
+	uid, gid       int
+	appPath        string
+	containerOps   []ContainerOperation
+	fileFilter     func(string) bool
+	containerExecs []*types.ExecConfig
 }
 
 func (p *Phase) Run(ctx context.Context) error {
@@ -45,6 +46,7 @@ func (p *Phase) Run(ctx context.Context) error {
 		p.ctr.ID,
 		p.infoWriter,
 		p.errorWriter,
+		p.containerExecs...,
 	)
 }
 
