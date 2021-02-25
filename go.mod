@@ -1,5 +1,7 @@
 module github.com/buildpacks/pack
 
+replace github.com/buildpacks/imgutil => github.com/micahyoung/buildpacks-imgutil v0.0.0-20210224214011-f414e3a014c7
+
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/Masterminds/semver v1.5.0
